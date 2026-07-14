@@ -149,7 +149,14 @@ onMounted(loadItems);
         <p class="notes">{{ selectedItem.notes_count }} notes on this item</p>
 
         <div class="actions" aria-label="Workflow actions">
-          <button type="button" :disabled="Boolean(pendingAction)" @click="performAction('claim')">
+          <button
+              type="button"
+              :disabled="
+                Boolean(pendingAction) ||
+                (selectedItem.assigned_reviewer !== null &&
+                  selectedItem.assigned_reviewer !== currentReviewer)
+              "
+              @click="performAction('claim')">
             Claim
           </button>
           <button type="button" :disabled="Boolean(pendingAction)" @click="performAction('approve')">
