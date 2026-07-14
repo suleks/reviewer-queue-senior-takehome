@@ -227,3 +227,29 @@ dd {
   color: red;
   font-weight: 600;
 }
+
+.resolved-items {
+  margin-top: 32px;
+  border: 1px solid #d8dee9;
+  border-radius: 8px;
+  background: #fff;
+  padding: 20px 24px;
+}
+
+.resolved-items table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.resolved-items th,
+.resolved-items td {
+  border-bottom: 1px solid #eef1f6;
+  padding: 12px 8px;
+}
+
+.resolved-items th {
+  color: #526173;
+  font-size: 12px;
+  text-transform: uppercase;
+}

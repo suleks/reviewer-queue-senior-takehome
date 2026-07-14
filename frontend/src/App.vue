@@ -13,6 +13,7 @@ const selectedId = ref<string | null>(null);
 const isLoading = ref(false);
 const errorMessage = ref<string | null>(null);
 const pendingAction = ref<ReviewAction | null>(null);
+const resolvedItems = ref<ReviewItem[]>([]);
 
 const selectedItem = computed(() =>
   items.value.find((item) => item.id === selectedId.value) ?? items.value[0] ?? null
@@ -56,6 +57,17 @@ async function loadItems() {
   }
 }
 
+async function loadResolvedItems() {
+  try {
+    const allItems = await fetchReviewItems(false);
+    resolvedItems.value = allItems.filter((item) =>
+      ["approved", "rejected", "escalated"].includes(item.status)
+    );
+  } catch (error) {
+    errorMessage.value = "Something went wrong loading resolved tasks.";
+  }
+}
+
 async function performAction(action: ReviewAction) {
   if (!selectedItem.value) return;
 
@@ -65,7 +77,7 @@ async function performAction(action: ReviewAction) {
   try {
     const updated = await applyReviewAction(selectedItem.value.id, action, currentReviewer);
     items.value = items.value.map((item) => (item.id === updated.id ? updated : item));
-    await Promise.all([loadItems()])
+    await Promise.all([loadItems(), loadResolvedItems()]);
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : "That action could not be completed.";
   } finally {
@@ -92,7 +104,10 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-onMounted(loadItems);
+onMounted(() => {
+  loadItems();
+  loadResolvedItems();
+});
 </script>
 
 <template>
@@ -184,5 +199,24 @@ onMounted(loadItems);
         </div>
       </section>
     </section>
+
+    <section v-if="!isLoading" class="resolved-items" aria-labelledby="resolved-items-heading">
+      <h2 id="resolved-items-heading">Resolved tasks</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Item title</th>
+            <th scope="col">Item status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in resolvedItems" :key="item.id">
+            <td>{{ item.title }}</td>
+            <td>{{ item.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
   </main>
 </template>

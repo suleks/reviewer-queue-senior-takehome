@@ -56,7 +56,7 @@ async def list_review_items(active_only: bool = True) -> dict:
     items = deepcopy(ITEMS)
 
     if active_only:
-        items = [item for item in items if item["status"] != "approved"]
+        items = [item for item in items if item["status"] not in ["approved", "rejected", "escalated"]]
 
     items.sort(key=lambda item: item["submitted_at"], reverse=True)
     return {"items": items}
