@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from fastapi import HTTPException
 
-from app.main import ActionRequest, apply_action, health, list_review_items
+from app.main import ActionRequest, apply_action, health, list_review_items, reset_items
 
 
 def run_async(coro):
@@ -35,3 +35,23 @@ def test_resolved_items_cannot_be_resolved_again(item_id: str, action: str) -> N
 
     assert exception.value.status_code == 409
     assert exception.value.detail == "This item has already been resolved"
+
+
+def test_assigned_reviewer_can_release_task() -> None:
+    try:
+        response = run_async(
+            apply_action("RV-1030", ActionRequest(action="release", reviewer="alex"))
+        )
+    finally:
+        run_async(reset_items())
+
+    assert response["item"]["status"] == "unassigned"
+    assert response["item"]["assigned_reviewer"] is None
+
+
+def test_unassigned_reviewer_cannot_release_task() -> None:
+    with pytest.raises(HTTPException) as exception:
+        run_async(apply_action("RV-1030", ActionRequest(action="release", reviewer="sam")))
+
+    assert exception.value.status_code == 409
+    assert exception.value.detail == "Only the assigned reviewer can release this item"

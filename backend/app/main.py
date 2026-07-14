@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "review_items.json"
 
-ReviewAction = Literal["claim", "approve", "reject", "escalate"]
+ReviewAction = Literal["claim", "approve", "reject", "escalate", "release"]
 
 
 class ActionRequest(BaseModel):
@@ -77,6 +77,11 @@ async def apply_action(item_id: str, request: ActionRequest) -> dict:
             raise HTTPException(status_code=409, detail="This item cannot be claimed")
         item["status"] = "in_review"
         item["assigned_reviewer"] = request.reviewer
+    elif request.action == "release":
+        if item["status"] != "in_review" or item["assigned_reviewer"] != request.reviewer:
+            raise HTTPException(status_code=409, detail="Only the assigned reviewer can release this item")
+        item["status"] = "unassigned"
+        item["assigned_reviewer"] = None
     elif request.action in {"approve", "reject", "escalate"}:
         if not item["assigned_reviewer"]:
             raise HTTPException(status_code=409, detail="Only assigned items can be actioned")

@@ -5,7 +5,7 @@ export type ReviewStatus =
   | "rejected"
   | "escalated";
 
-export type ReviewAction = "claim" | "approve" | "reject" | "escalate";
+export type ReviewAction = "claim" | "approve" | "reject" | "escalate" | "release";
 
 export interface ReviewItem {
   id: string;

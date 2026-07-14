@@ -73,6 +73,18 @@ async function performAction(action: ReviewAction) {
   }
 }
 
+function releaseTask() {
+  if (!selectedItem.value) return;
+
+  const confirmed = window.confirm(
+    `Release this task and unassign it from ${currentReviewer}?`
+  );
+
+  if (confirmed) {
+    performAction("release");
+  }
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
@@ -150,14 +162,15 @@ onMounted(loadItems);
 
         <div class="actions" aria-label="Workflow actions">
           <button
-              type="button"
-              :disabled="
-                Boolean(pendingAction) ||
-                (selectedItem.assigned_reviewer !== null &&
-                  selectedItem.assigned_reviewer !== currentReviewer)
-              "
-              @click="performAction('claim')">
-            Claim
+            type="button"
+            :disabled="
+              Boolean(pendingAction) ||
+              (selectedItem.assigned_reviewer !== null &&
+                selectedItem.assigned_reviewer !== currentReviewer)
+            "
+            @click="selectedItem.assigned_reviewer === currentReviewer ? releaseTask() : performAction('claim')"
+          >
+            {{ selectedItem.assigned_reviewer === currentReviewer ? "Release task" : "Claim" }}
           </button>
           <button type="button" :disabled="Boolean(pendingAction)" @click="performAction('approve')">
             Approve
