@@ -106,7 +106,12 @@ onMounted(loadItems);
           @click="selectedId = item.id"
         >
           <span class="queue-title">{{ item.title }}</span>
-          <span class="queue-meta">{{ item.risk_level }} risk · {{ item.customer_tier }}</span>
+          <span class="queue-meta">
+            {{ item.risk_level }} risk ·
+            <span :class="{ 'priority-tier': item.customer_tier === 'priority' }">
+              {{ item.customer_tier }}
+            </span>
+          </span>
           <span class="queue-meta">{{ item.status }} · {{ item.assigned_reviewer ?? "unassigned" }}</span>
         </button>
       </aside>

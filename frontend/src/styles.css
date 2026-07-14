@@ -222,3 +222,8 @@ dd {
     margin-bottom: 16px;
   }
 }
+
+.priority-tier {
+  color: red;
+  font-weight: 600;
+}
