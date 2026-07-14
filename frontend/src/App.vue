@@ -65,8 +65,9 @@ async function performAction(action: ReviewAction) {
   try {
     const updated = await applyReviewAction(selectedItem.value.id, action, currentReviewer);
     items.value = items.value.map((item) => (item.id === updated.id ? updated : item));
+    await Promise.all([loadItems()])
   } catch (error) {
-    errorMessage.value = "That action could not be completed.";
+    errorMessage.value = error instanceof Error ? error.message : "That action could not be completed.";
   } finally {
     pendingAction.value = null;
   }
