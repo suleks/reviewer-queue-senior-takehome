@@ -87,6 +87,8 @@ async def apply_action(item_id: str, request: ActionRequest) -> dict:
             raise HTTPException(status_code=409, detail="Only assigned items can be actioned")
         if item["status"] in {"approved", "rejected", "escalated"}:
             raise HTTPException(status_code=409, detail="This item has already been resolved")
+        if item["assigned_reviewer"] != request.reviewer:
+            raise HTTPException(status_code=409, detail="This item is assigned to another reviewer")
         item["status"] = status_for_action(request.action)
     else:
         raise HTTPException(status_code=400, detail="Unsupported action")

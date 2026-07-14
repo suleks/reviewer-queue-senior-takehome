@@ -55,3 +55,11 @@ def test_unassigned_reviewer_cannot_release_task() -> None:
 
     assert exception.value.status_code == 409
     assert exception.value.detail == "Only the assigned reviewer can release this item"
+
+
+def test_cannot_resolve_other_reviewer_task() -> None:
+    with pytest.raises(HTTPException) as exception:
+        run_async(apply_action("RV-1030", ActionRequest(action="approve", reviewer="sam")))
+
+    assert exception.value.status_code == 409
+    assert exception.value.detail == "This item is assigned to another reviewer"
