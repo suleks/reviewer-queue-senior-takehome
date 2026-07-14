@@ -18,6 +18,30 @@ const selectedItem = computed(() =>
   items.value.find((item) => item.id === selectedId.value) ?? items.value[0] ?? null
 );
 
+const customerTierRank = {
+  priority: 0,
+  standard: 1
+} as const;
+
+function assignmentRank(item: ReviewItem) {
+  if (item.assigned_reviewer === currentReviewer) return 0;
+  if (item.assigned_reviewer === null) return 1;
+  return 2;
+}
+
+const sortedItems = computed(() =>
+  [...items.value].sort(
+    (first, second) => {
+      const assignmentDifference = assignmentRank(first) - assignmentRank(second);
+
+      return (
+        assignmentDifference ||
+        customerTierRank[first.customer_tier] - customerTierRank[second.customer_tier]
+      );
+    }
+  )
+);
+
 async function loadItems() {
   isLoading.value = true;
   errorMessage.value = null;
@@ -74,7 +98,7 @@ onMounted(loadItems);
     <section v-else class="workspace">
       <aside class="queue-list" aria-label="Review queue">
         <button
-          v-for="item in items"
+          v-for="item in sortedItems"
           :key="item.id"
           class="queue-item"
           :class="{ selected: item.id === selectedItem?.id }"
